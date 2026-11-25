@@ -17,7 +17,7 @@ const save = () => { dirty = true; };
 const app = express();
 app.set("trust proxy", 1);
 app.use(express.json({ limit: "2kb" }));
-app.use(express.static(path.join(__dirname, "public")));
+app.get("/", (q, r) => r.sendFile(path.join(__dirname, "index.html")));
 const server = http.createServer(app);
 
 // ---------- missions ----------
