@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="gu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>People of Palanpur</title>
+<style>
+:root{--bg:#141a2e;--card:#252b45;--ac:#ff8a1f;--tx:#fff6ea}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;z-index:5}
+#top{top:8px;left:8px;background:#141a2ecc;border-left:4px solid var(--ac);padding:6px 10px;font-weight:800;font-style:italic;font-size:13px}
+#top small{display:block;font-weight:500;color:#9fe3b0;font-style:normal}
+#edit{top:8px;right:8px;background:var(--ac);color:#111;border:0;padding:10px 14px;font-weight:900;font-style:italic;border-radius:4px}
+#bar{bottom:calc(8px + env(safe-area-inset-bottom,0px));left:8px;right:8px;display:flex;gap:8px}
+#bar button{flex:1;background:#141a2ecc;color:var(--tx);border:0;border-radius:12px;font-size:20px;padding:12px 0;position:relative}
+.bdg{position:absolute;top:-6px;right:10px;background:#e91e63;border-radius:10px;font-size:12px;padding:1px 6px;display:none}
+#wave{right:14px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:var(--ac);font-size:30px}
+#joy{left:22px;bottom:calc(90px + env(safe-area-inset-bottom,0px));width:110px;height:110px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff44}
+#knob{position:absolute;left:30px;top:30px;width:50px;height:50px;border-radius:50%;background:#ffffffaa}
+.panel{position:fixed;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;touch-action:pan-y;user-select:text;-webkit-user-select:text}
+.panel.on{display:flex}
+.ph{background:var(--ac);color:#111;font-weight:900;font-style:italic;padding:14px;display:flex;justify-content:space-between;align-items:center;padding-top:calc(14px + env(safe-area-inset-top,0px))}
+.ph button{background:#fff6ea;border:0;border-radius:6px;padding:8px 14px;font-weight:800}
+.body{flex:1;overflow-y:auto;padding:10px}
+.m{background:var(--card);border-radius:12px;padding:8px 12px;margin:6px 0;max-width:85%;width:fit-content;overflow-wrap:anywhere}
+.m b{color:#7ee08f;display:block;font-size:13px}
+.m.me{margin-left:auto;background:#ff8a1f44}
+.row{display:flex;gap:8px;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+input,textarea{font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid #444;background:var(--card);color:var(--tx);width:100%}
+.row input{flex:1}
+.btn{background:var(--ac);color:#111;border:0;border-radius:10px;padding:12px 16px;font-weight:800;font-size:15px;white-space:nowrap}
+.btn.g{background:transparent;color:var(--tx);border:1px solid #888}
+.p{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);padding:12px;margin:6px 0;border-radius:10px;border-left:4px solid var(--ac)}
+.p small{display:block;opacity:.75;font-size:12px}
+.tabs{display:flex;gap:6px;padding:8px 10px 0}
+.tabs button{flex:1;background:var(--card);color:var(--tx);border:0;padding:10px;font-weight:800;border-radius:8px 8px 0 0}
+.tabs button.s{background:#fff6ea;color:#111}
+label{display:block;font-size:12px;letter-spacing:2px;opacity:.7;margin:14px 0 4px;font-weight:700}
+#start{position:fixed;inset:0;z-index:30;background:linear-gradient(#141a2e,#1f3a5f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+#start h1{margin:0;font-size:44px;font-style:italic}#start h1 span{color:var(--ac)}
+#start input{width:min(320px,90%);text-align:center;border:0;font-size:18px}
+#sw{display:flex;gap:10px}#sw i{width:34px;height:34px;border-radius:50%;border:3px solid transparent}#sw i.s{border-color:#fff}
+#toast{top:64px;left:50%;transform:translateX(-50%);background:#fff6ea;color:#111;padding:8px 14px;border-radius:10px;font-weight:700;display:none;max-width:90%;text-align:center}
+#hint{top:60px;right:8px;font-size:11px;opacity:.8;text-align:right}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="start">
+ <div style="color:var(--ac);letter-spacing:3px;font-weight:800">પાલનપુરના લોકો · PEOPLE OF</div>
+ <h1>PALAN<span>PUR</span></h1><div>તમારા શહેરમાં, તમારો અવતાર.</div>
+ <input id="nm" maxlength="16" placeholder="Tamaru naam / તમારું નામ"><div id="sw"></div>
+ <button class="btn" id="go">PALANPUR CHALO ▸</button><div id="stat" style="font-size:12px;opacity:.7"></div>
+</div>
+<div class="hud" id="top"><span id="pl">PALANPUR CHOWK</span> <span id="clk" style="font-weight:500;opacity:.8"></span><small id="on">● Online: 1</small></div>
+<button class="hud" id="edit">👋 EDIT</button>
+<div class="hud" id="hint">Left: walk · Right drag: look<br>Kisi par tap = profile</div>
+<div class="hud" id="toast"></div>
+<div class="hud" id="joy"><div id="knob"></div></div>
+<button class="hud" id="wave">👋</button>
+<canvas class="hud" id="mm" width="96" height="96" style="right:14px;bottom:calc(236px + env(safe-area-inset-bottom,0px));border-radius:50%;background:#0009;border:2px solid #fff6"></canvas>
+<button class="hud" id="bike" style="right:22px;bottom:calc(160px + env(safe-area-inset-bottom,0px));width:48px;height:48px;border-radius:50%;border:2px solid #fff6;background:#141a2ecc;font-size:22px">🚲</button>
+<button class="hud btn" id="chaiBtn" style="display:none;left:50%;transform:translateX(-50%);top:110px">☕ Order cutting chai</button>
+<div class="hud" id="bar"><button id="bF">🔍</button><button id="bC">💬</button><button id="bN">🤝<span class="bdg" id="bd"></span></button><button id="bX">🎯</button><button id="bT">🤖</button><button id="bM">🗺️</button></div>
+
+<div class="panel" id="chat"><div class="ph">🌍 WORLD CHAT<button data-x>ESC</button></div>
+ <div style="padding:8px 12px;font-size:13px;opacity:.8">Badha city ma vanchi sake. Kind raho. No numbers, emails or links.</div>
+ <div class="body" id="msgs"></div><div class="row"><input id="ci" maxlength="200" placeholder="Say something to everyone…"><button class="btn" id="cs">➤</button></div></div>
+
+<div class="panel" id="find"><div class="ph">🔍 FIND SOMEONE<button data-x>ESC</button></div>
+ <div class="row"><input id="fq" placeholder="Name, work, what they are looking for…"></div><div class="body" id="fl"></div></div>
+
+<div class="panel" id="conn"><div class="ph">CONNECTIONS<button data-x>ESC</button></div>
+ <div class="tabs"><button data-tab="chats" class="s">CHATS</button><button data-tab="req">REQUESTS</button><button data-tab="sent">SENT</button></div><div class="body" id="cl"></div></div>
+
+<div class="panel" id="thread"><div class="ph"><span id="tn">Chat</span><button data-x>ESC</button></div>
+ <div class="body" id="tm"></div><div class="row"><input id="ti" maxlength="300" placeholder="Message…"><button class="btn" id="ts">➤</button></div></div>
+
+<div class="panel" id="card"><div class="ph">PROFILE<button data-x>ESC</button></div><div class="body" id="cb"></div></div>
+
+<div class="panel" id="prof"><div class="ph">🧑‍💻 ABOUT YOU<button data-x>ESC</button></div><div class="body">
+ <label>NAME</label><input id="pn" maxlength="16">
+ <label>LOOK (COLOUR)</label><div id="sw2" style="display:flex;gap:10px"></div>
+ <label>WHAT YOU LIKE (comma)</label><input id="pl" maxlength="100" placeholder="Photography, Cricket, Garba">
+ <label>COMPANY OR COLLEGE</label><input id="pc" maxlength="40" placeholder="Where you work or study">
+ <label>WHAT YOU ARE BUILDING</label><textarea id="pb" rows="2" maxlength="120" placeholder="A delivery app, a podcast, a pottery studio…"></textarea>
+ <label>WEBSITE (https://)</label><input id="ps" maxlength="100" placeholder="https://yoursite.com">
+ <label>SKILLS (up to 8, commas)</label><input id="pk" maxlength="100" placeholder="React, Figma, Sales, Garba">
+ <label>ACCOUNT (device badlo to pan profile male)</label><div id="aust" style="font-size:13px;opacity:.8;margin-bottom:6px"></div>
+ <input id="au" placeholder="username" autocapitalize="none"><input id="ap" type="password" placeholder="password (6+)" style="margin-top:6px">
+ <div style="display:flex;gap:8px;margin-top:8px"><button class="btn g" id="areg">Register</button><button class="btn g" id="alog">Login</button></div>
+ <br><button class="btn" id="psave">SAVE</button></div></div>
+
+<div class="panel" id="mis"><div class="ph">🎯 MISSIONS<button data-x>ESC</button></div><div class="body" id="mi"></div></div>
+<div class="panel" id="chaip"><div class="ph">☕ CUTTING CHAI<button data-x>ESC</button></div><div class="body" id="chb"></div></div>
+<div class="panel" id="twin"><div class="ph">🤖 YOUR AI TWIN<button data-x>ESC</button></div><div class="body">
+ <div id="twst"></div><button class="btn" id="twon" style="margin-top:8px"></button>
+ <label>LANGUAGE</label><div id="tlg" class="tabs" style="padding:0"></div>
+ <label>TEACH YOUR TWIN</label><div class="row" style="padding:0"><input id="tni" maxlength="200" placeholder="E.g. Hu photography karu chhu, weekend ma free"><button class="btn" id="tna">Add</button></div>
+ <button class="btn" id="tmic" style="margin-top:8px;width:100%">🎙️ Start talking</button>
+ <label>WHAT IT KNOWS</label><div id="tnl"></div></div></div>
+<div class="panel" id="twc"><div class="ph"><span id="twn">Twin</span><button data-x>ESC</button></div>
+ <div id="tcl" class="tabs"></div><div class="body" id="twm"></div>
+ <div class="row"><input id="twi" maxlength="300" placeholder="Twin ne puchho…"><button class="btn" id="twmic">🎙️</button><button class="btn" id="tws">➤</button></div></div>
+<div class="panel" id="map"><div class="ph">🗺️ PALANPUR PLACES<button data-x>ESC</button></div><div class="body" id="ml"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const COLORS=[0xe86a92,0x3a7bd5,0x2fbf71,0xf5a623,0x9b59b6,0xe74c3c];
+const hex=c=>"#"+c.toString(16).padStart(6,"0");
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let tok=LS.get("pp_uid");if(!tok){tok=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());LS.set("pp_uid",tok)}
+let uid="";
+let myColor=+LS.get("pp_color")||0,myName="",myProfile={};
+function swatches(el,on){el.textContent="";COLORS.forEach((c,i)=>{const e=document.createElement("i");e.style.cssText="display:inline-block;width:34px;height:34px;border-radius:50%;border:3px solid "+(i===myColor?"#fff":"transparent");e.style.background=hex(c);e.onclick=()=>{myColor=i;swatches($("sw"));swatches($("sw2"));on&&on()};el.appendChild(e)})}
+swatches($("sw"));$("nm").value=LS.get("pp_name")||"";
+
+// ---- 3D ----
+const R=new THREE.WebGLRenderer({canvas:$("c"),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene();S.background=new THREE.Color(0xbfd9f2);S.fog=new THREE.Fog(0xe9dcc3,40,150);
+const cam=new THREE.PerspectiveCamera(60,1,.1,300);
+function rs(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener("resize",rs);rs();
+S.add(new THREE.HemisphereLight(0xffffff,0x8a7a5a,.9));const sun=new THREE.DirectionalLight(0xfff0d0,.7);sun.position.set(50,80,30);S.add(sun);
+const mat=c=>new THREE.MeshLambertMaterial({color:c});
+function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);S.add(m);return m}
+box(400,.2,400,0xd9c08f,0,-.1,0);
+for(const p of[-40,0,40]){box(8,.25,400,0x555a63,p,0,0);box(400,.25,8,0x555a63,0,0,p)}
+box(.3,.3,400,0xf5e6a0,0,.15,0);box(400,.3,.3,0xf5e6a0,0,.15,0);box(26,.3,26,0xcfa86a,0,.1,0);
+box(4,12,4,0xe8d3a8,0,6,0);box(5,1,5,0xb5532a,0,12.5,0);box(2.6,2.6,2.6,0xfff6ea,0,10.5,0);
+box(30,6,14,0xf0e2c2,-65,3,-65);box(6,10,6,0xf0e2c2,-65,8,-65);box(7,1,7,0xc0392b,-65,13.5,-65);
+box(26,5,10,0xc94f3a,70,2.5,-60);
+box(4,2,2.4,0xb5651d,12,1,14);box(5,.5,3.4,0xe74c3c,12,3.3,14);box(.3,2.3,.3,0x333,10,2.1,12.8);box(.3,2.3,.3,0x333,14,2.1,12.8);
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const pal=[0xe8c9a0,0xd7a28a,0xa8c5b0,0xc9d1a0,0xe0b0b0,0xb8c4dc],RD=[-40,0,40];
+const nearRoad=(x,z,m)=>Math.min(...RD.map(p=>Math.abs(x-p)))<m||Math.min(...RD.map(p=>Math.abs(z-p)))<m;
+for(let i=0;i<70;i++){const x=(rnd()-.5)*340,z=(rnd()-.5)*340;if(nearRoad(x,z,8)||(Math.abs(x)<18&&Math.abs(z)<18))continue;const h=5+rnd()*18;box(10+rnd()*8,h,10+rnd()*8,pal[i%6],x,h/2,z)}
+for(let i=0;i<110;i++){const x=(rnd()-.5)*340,z=(rnd()-.5)*340;if(nearRoad(x,z,6))continue;box(.8,3,.8,0x6b4a2b,x,1.5,z);const t=new THREE.Mesh(new THREE.SphereGeometry(2.2,8,6),mat(0x4f9d3a));t.position.set(x,4.5,z);S.add(t)}
+const kites=[];for(let i=0;i<14;i++){const k=new THREE.Mesh(new THREE.OctahedronGeometry(.8),mat(COLORS[i%6]));k.position.set((rnd()-.5)*120,25+rnd()*15,(rnd()-.5)*120);k.userData.o=rnd()*6;S.add(k);kites.push(k)}
+function label(txt,col){const c=document.createElement("canvas");c.width=256;c.height=64;const g=c.getContext("2d");g.font="bold 34px system-ui";g.textAlign="center";g.lineWidth=7;g.strokeStyle="#000a";g.strokeText(txt,128,44);g.fillStyle=col||"#fff";g.fillText(txt,128,44);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));s.scale.set(4,1,1);s.position.y=3.1;s.renderOrder=9;return s}
+function avatar(name,ci,you){const g=new THREE.Group();
+ const b=new THREE.Mesh(new THREE.BoxGeometry(.9,1.1,.5),mat(COLORS[ci%6]));b.position.y=1.7;g.add(b);
+ const h=new THREE.Mesh(new THREE.SphereGeometry(.42,10,8),mat(0x8d5a38));h.position.y=2.65;g.add(h);
+ const hr=new THREE.Mesh(new THREE.SphereGeometry(.44,10,8,0,6.3,0,1.4),mat(0x1a1a1a));hr.position.y=2.7;g.add(hr);
+ for(const s of[-1,1]){const l=new THREE.Mesh(new THREE.BoxGeometry(.35,1.15,.4),mat(0x1d2f5a));l.position.set(s*.25,.58,0);g.add(l)}
+ if(you){const r=new THREE.Mesh(new THREE.RingGeometry(1.1,1.4,24),new THREE.MeshBasicMaterial({color:0xff8a1f,side:2}));r.rotation.x=-Math.PI/2;r.position.y=.2;g.add(r)}
+ g.add(label(name,you?"#ffb347":"#fff"));g.userData.label=g.children[g.children.length-1];return g}
+
+// ---- state ----
+const me={x:(Math.random()-.5)*10,z:18,r:0,g:null};const players=new Map();const users={};let threads=[],ws=null,ready=false,bounce=0,yaw=0,openWith=null;
+const keys={};let jx=0,jy=0;
+function toast(t){const e=$("toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",2600)}
+function open(id){document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));$(id).classList.add("on")}
+document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{b.closest(".panel").classList.remove("on");openWith=null});
+const tx=(el,t)=>{el.textContent=t;return el};
+function mk(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+const send=o=>{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))};
+
+// ---- controls ----
+addEventListener("keydown",e=>{if(document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="TEXTAREA")keys[e.key.toLowerCase()]=1});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=0);
+const joy=$("joy"),kn=$("knob");let jid=null,lid=null,lx=0;
+joy.addEventListener("touchstart",e=>{jid=e.changedTouches[0].identifier;e.preventDefault()},{passive:false});
+function jm(t){const r=joy.getBoundingClientRect();let dx=t.clientX-(r.left+55),dy=t.clientY-(r.top+55);const m=Math.hypot(dx,dy),k=Math.min(m,45)/(m||1);dx*=k;dy*=k;jx=dx/45;jy=dy/45;kn.style.transform=`translate(${dx}px,${dy}px)`}
+addEventListener("touchmove",e=>{for(const t of e.changedTouches){if(t.identifier===jid)jm(t);else if(t.identifier===lid){yaw-=(t.clientX-lx)*.008;lx=t.clientX}}},{passive:true});
+addEventListener("touchend",e=>{for(const t of e.changedTouches){if(t.identifier===jid){jid=null;jx=jy=0;kn.style.transform=""}if(t.identifier===lid)lid=null}});
+const ray=new THREE.Raycaster(),v2=new THREE.Vector2();
+function tap(t){v2.set(t.clientX/innerWidth*2-1,-(t.clientY/innerHeight)*2+1);ray.setFromCamera(v2,cam);for(const [id,p] of players){if(ray.intersectObjects(p.g.children,true).length){showCard(id);return}}}
+$("c").addEventListener("touchstart",e=>{const t=e.changedTouches[0];if(t.clientX>innerWidth*.4){lid=t.identifier;lx=t.clientX}tap(t)},{passive:true});
+let md=false,mx=0;$("c").addEventListener("mousedown",e=>{md=true;mx=e.clientX;tap(e)});addEventListener("mouseup",()=>md=false);addEventListener("mousemove",e=>{if(md){yaw-=(e.clientX-mx)*.006;mx=e.clientX}});
+
+// ---- UI ----
+function addWorld(m){const d=mk("div","m"+(m.uid===uid?" me":""));d.append(mk("b",null,m.name),mk("span",null,m.text));$("msgs").appendChild(d);while($("msgs").children.length>150)$("msgs").firstChild.remove();$("msgs").scrollTop=1e9}
+function sendWorld(){const v=$("ci").value.trim();if(!v)return;$("ci").value="";send({t:"chat",text:v})}
+$("cs").onclick=sendWorld;$("ci").onkeydown=e=>{if(e.key==="Enter")sendWorld()};
+$("bC").onclick=()=>{open("chat");$("msgs").scrollTop=1e9};
+$("wave").onclick=()=>{bounce=1;toast("👋 Hi Palanpur!")};
+const PLACES=[["Palanpur Chowk (Clock Tower)",0,20],["Jorawar Palace",-60,-52],["Railway Station",70,-48],["Bus Stand",-40,50],["Kirti Stambh",40,-30]];
+$("bM").onclick=()=>{const m=$("ml");m.textContent="";PLACES.forEach(p=>{const d=mk("div","p");d.append(mk("span",null,p[0]));const b=mk("button","btn","Go");b.onclick=()=>{me.x=p[1];me.z=p[2];$("map").classList.remove("on");toast("📍 "+p[0])};d.appendChild(b);m.appendChild(d)});open("map")};
+
+function pline(u){const p=u.profile||{};return [p.company,p.about||p.building].filter(Boolean).join(" · ")}
+function userRow(u,extra){const d=mk("div","p");const l=mk("div");l.append(mk("b",null,(u.online?"🟢 ":"")+u.name));const s=mk("small",null,(u.shared&&u.shared.length?"✨ You both like "+u.shared.join(", ")+" · ":"")+pline(u));l.appendChild(s);d.appendChild(l);const b=mk("button","btn","Open");b.onclick=()=>showCard(u.uid,u);d.appendChild(b);return d}
+function search(){send({t:"search",q:$("fq").value})}
+$("bF").onclick=()=>{open("find");search()};let st;$("fq").oninput=()=>{clearTimeout(st);st=setTimeout(search,250)};
+
+function showCard(id,u){u=u||users[id];if(!u)return;const b=$("cb");b.textContent="";const p=u.profile||{};
+ b.append(mk("h2",null,u.name),mk("div",null,u.online?"🟢 Online now":"Offline"));
+ [["COMPANY / COLLEGE",p.company],["BUILDING",p.building],["SKILLS",p.skills],["LIKES",p.likes]].forEach(([k,v])=>{if(v){b.append(mk("label",null,k),mk("div",null,v))}});
+ if(p.site){b.append(mk("label",null,"WEBSITE"));const a=mk("a",null,p.site);a.href=p.site;a.target="_blank";a.rel="noopener noreferrer";a.style.color="#ffb347";b.appendChild(a)}
+ b.appendChild(mk("br"));const row=mk("div");row.style.cssText="display:flex;gap:8px;margin-top:16px";
+ const hi=mk("button","btn","👋 Say hi");hi.onclick=()=>{send({t:"dm",to:id,text:"👋 Hi! Saw you in the city. Kem cho?"});send({t:"wave",to:id});toast("Hi mokli didhu");openThread(id)};
+ const ch=mk("button","btn g","💬 Chat");ch.onclick=()=>openThread(id);row.append(hi,ch);if(u.twin){const tw=mk("button","btn g","🤖 Twin");tw.onclick=()=>openTwin(id);row.appendChild(tw)}b.appendChild(row);open("card")}
+
+function openThread(id){openWith=id;$("tm").textContent="";tx($("tn"),(users[id]||{}).name||"Chat");open("thread");send({t:"open",with:id})}
+function addDm(m){const d=mk("div","m"+(m.from===uid?" me":""));d.appendChild(mk("span",null,m.text));$("tm").appendChild(d);$("tm").scrollTop=1e9}
+function sendDm(){const v=$("ti").value.trim();if(!v||!openWith)return;$("ti").value="";send({t:"dm",to:openWith,text:v})}
+$("ts").onclick=sendDm;$("ti").onkeydown=e=>{if(e.key==="Enter")sendDm()};
+
+let tab="chats";document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.className=x===b?"s":"");renderConn()});
+function renderConn(){const l=$("cl");l.textContent="";
+ const f=threads.filter(t=>tab==="chats"?t.state==="connected":tab==="req"?(t.state==="pending"&&t.initiator!==uid):(t.state==="pending"&&t.initiator===uid));
+ if(!f.length)l.textContent="Hamna kai nathi.";
+ f.forEach(t=>{const d=mk("div","p");const c=mk("div");c.append(mk("b",null,t.name),mk("small",null,t.last));d.appendChild(c);const b=mk("button","btn",tab==="req"?"Reply":"Open chat");b.onclick=()=>{if(!users[t.with])users[t.with]={uid:t.with,name:t.name};openThread(t.with)};d.appendChild(b);l.appendChild(d)});
+ const n=threads.filter(t=>t.state==="pending"&&t.initiator!==uid).length;$("bd").style.display=n?"block":"none";$("bd").textContent=n}
+$("bN").onclick=()=>{renderConn();open("conn")};
+
+$("edit").onclick=()=>{const p=myProfile;$("pn").value=myName;$("pl").value=p.likes||"";$("pc").value=p.company||"";$("pb").value=p.building||"";$("ps").value=p.site||"";$("pk").value=p.skills||"";swatches($("sw2"));open("prof")};
+$("psave").onclick=()=>{myName=$("pn").value.trim()||myName;LS.set("pp_name",myName);LS.set("pp_color",myColor);
+ send({t:"profile",name:myName,color:myColor,profile:{likes:$("pl").value,company:$("pc").value,building:$("pb").value,site:$("ps").value,skills:$("pk").value}});
+ myProfile={likes:$("pl").value,company:$("pc").value,building:$("pb").value,site:$("ps").value,skills:$("pk").value};$("prof").classList.remove("on");toast("Saved ✅")};
+
+// ---- network ----
+function addPlayer(p){if(p.uid===uid)return;users[p.uid]=p;let o=players.get(p.uid);if(o){S.remove(o.g)}
+ const g=avatar(p.name,p.color,false);g.position.set(p.x||0,0,p.z||0);S.add(g);players.set(p.uid,{g,tx:p.x||0,tz:p.z||0,tr:p.r||0,color:p.color,name:p.name});cnt()}
+function cnt(){$("on").textContent="● Online: "+(players.size+1)}
+function connect(){
+ ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host);
+ ws.onopen=()=>send({t:"hello",uid:tok,name:myName,color:myColor,x:me.x,z:me.z});
+ ws.onclose=()=>{ready=false;toast("Reconnecting…");setTimeout(connect,2000)};
+ ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  switch(m.t){
+   case "welcome":ready=true;uid=m.me.uid;myProfile=m.me.profile||{};users[uid]=m.me;myTwin=m.twin||{on:false,notes:[]};missionsDone=m.missions||[];renderMissions();renderTwin();players.forEach(p=>S.remove(p.g));players.clear();m.players.forEach(addPlayer);threads=m.threads;renderConn();$("msgs").textContent="";m.world.forEach(addWorld);cnt();break;
+   case "join":addPlayer(m.p);toast("✨ "+m.p.name+" just moved to Palanpur");break;
+   case "leave":{const o=players.get(m.uid);if(o){S.remove(o.g);players.delete(m.uid);if(users[m.uid])users[m.uid].online=false}cnt();break}
+   case "pos":{const o=players.get(m.uid);if(o){o.tx=m.x;o.tz=m.z;o.tr=m.r}break}
+   case "user":{users[m.p.uid]=m.p;const o=players.get(m.p.uid);if(o&&(o.name!==m.p.name||o.color!==m.p.color))addPlayer({...m.p,x:o.g.position.x,z:o.g.position.z,r:o.tr});break}
+   case "chat":addWorld(m.m);if(m.m.uid!==uid&&!$("chat").classList.contains("on"))toast("💬 "+m.m.name+": "+m.m.text.slice(0,40));break;
+   case "results":m.list.forEach(u=>users[u.uid]=u);{const l=$("fl");l.textContent="";if(!m.list.length)l.textContent="Koi malyu nahi.";m.list.forEach(u=>l.appendChild(userRow(u)))}break;
+   case "threads":threads=m.list;renderConn();break;
+   case "thread":if(openWith===m.with){$("tm").textContent="";m.msgs.forEach(addDm);if(m.state==="pending")$("tm").appendChild(mk("div","m","Sent. Jyare e reply karse tame connected thasho."))}break;
+   case "dm":if(openWith===m.with)addDm(m.m);else if(m.m.from!==uid)toast("💬 "+(m.fromName||"New message")+": "+m.m.text.slice(0,40));break;
+   case "wave":toast("👋 "+m.name+" e hi kidhu!");break;
+   case "missions":{const nw=m.list.filter(x=>!missionsDone.includes(x));missionsDone=m.list;renderMissions();nw.forEach(id=>{const q=MISSIONS.find(x=>x[0]===id);if(q)toast("🎉 Mission done: "+q[2]+" ("+missionsDone.length+"/6)")});break}
+   case "chai":{const b=$("chb");b.textContent="";b.append(mk("h2",null,"☕ Chai-wala kahe chhe…"),mk("p",null,m.line));if(m.user){users[m.user.uid]=m.user;b.appendChild(userRow(m.user))}break}
+   case "twin":myTwin=m.twin;renderTwin();break;
+   case "twin_reply":if(m.to===twTo)twMsg("assistant",m.text);break;
+   case "err":toast(m.msg);break}}
+}
+setInterval(()=>{if(ready&&me.g&&(Math.abs(me.x-lp.x)>.05||Math.abs(me.z-lp.z)>.05||me.r!==lp.r)){lp={x:me.x,z:me.z,r:me.r};send({t:"pos",x:+me.x.toFixed(2),z:+me.z.toFixed(2),r:+me.r.toFixed(2)})}},100);let lp={x:0,z:0,r:0};
+
+
+// ---- missions / chai / minimap / bike / twin / auth ----
+const MISSIONS=[["hi","👋","Say hi","Kisi ne 👋 Hi moklo (player par tap ke Find)"],["chai","☕","Cutting Chai","Chowk par chai stall pase cutting order karo"],["chat","💬","World Chat","World Chat ma kai lakho"],["palace","🏰","Jorawar Palace","Jorawar Palace sudhi chalo"],["station","🚉","Railway Station","Railway Station sudhi chalo"],["friend","🤝","Make a friend","Koi tamne reply kare = connected"]];
+let missionsDone=[],myTwin={on:false,notes:[]},bike=false,lang=LS.get("pp_lang")||"gu";
+function renderMissions(){const l=$("mi");l.textContent="";MISSIONS.forEach(([id,ic,t,d])=>{const r=mk("div","p"),c=mk("div"),dn=missionsDone.includes(id);c.append(mk("b",null,(dn?"✅ ":ic+" ")+t),mk("small",null,d));r.appendChild(c);l.appendChild(r)});l.prepend(mk("div",null,"Progress: "+missionsDone.length+"/6"))}
+$("bX").onclick=()=>{renderMissions();open("mis")};
+$("bike").onclick=()=>{bike=!bike;$("bike").style.background=bike?"#ff8a1f":"#141a2ecc";toast(bike?"🚲 Bike on – 2x speed":"Walk mode")};
+$("chaiBtn").onclick=()=>{const b=$("chb");b.textContent="";b.append(mk("h2",null,"☕ Cutting Chai"),mk("p",null,"Every introduction here starts at a kitli. Order a cutting and hear who the chai-wala says you should meet."));const o=mk("button","btn","Order cutting – ₹10");o.onclick=()=>{send({t:"chai"});o.disabled=true;o.textContent="Chai ban rahi chhe…"};b.appendChild(o);open("chaip")};
+const mmc=$("mm").getContext("2d");let tk=0;
+function extra(dt,now){
+ if(!me.g)return;
+ const dc=Math.hypot(me.x-12,me.z-14);$("chaiBtn").style.display=dc<10?"block":"none";
+ if(Math.hypot(me.x+65,me.z+65)<18)mission("palace");if(Math.hypot(me.x-70,me.z+60)<18)mission("station");
+ mmc.clearRect(0,0,96,96);mmc.fillStyle="#2fbf71";players.forEach(p=>{const x=48+(p.g.position.x-me.x)*.4,y=48+(p.g.position.z-me.z)*.4;if(Math.hypot(x-48,y-48)<46){mmc.beginPath();mmc.arc(x,y,3,0,7);mmc.fill()}});
+ mmc.fillStyle="#ffb347";mmc.beginPath();mmc.arc(48,48,4,0,7);mmc.fill();
+ mmc.fillStyle="#fff";mmc.font="9px sans-serif";[["☕",12,14],["🏛",-65,-65],["🚉",70,-60],["⏰",0,0]].forEach(([e,x,z])=>{const px=48+(x-me.x)*.4,py=48+(z-me.z)*.4;if(Math.hypot(px-48,py-48)<44)mmc.fillText(e,px-5,py+4)});
+ tk+=dt;if(tk>1){tk=0;let b=PLACES[0];PLACES.forEach(p=>{if(Math.hypot(me.x-p[1],me.z-p[2])<Math.hypot(me.x-b[1],me.z-b[2]))b=p});tx($("pl"),b[0].split(" (")[0].toUpperCase());tx($("clk"),new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}))}
+}
+function mission(id){if(ready&&!missionsDone.includes(id)&&!mission.s[id]){mission.s[id]=1;send({t:"mission",id})}}mission.s={};
+const LCODE={gu:"gu-IN",hi:"hi-IN",en:"en-IN"};
+function langTabs(el){el.textContent="";[["gu","ગુજરાતી"],["hi","हिंदी"],["en","English"]].forEach(([k,n])=>{const b=mk("button",k===lang?"s":"",n);b.onclick=()=>{lang=k;LS.set("pp_lang",k);langTabs($("tlg"));langTabs($("tcl"))};el.appendChild(b)})}
+function renderTwin(){const t=myTwin||{on:false,notes:[]};tx($("twst"),t.on?"Your AI twin is on ✅ Loko tamara twin sathe vaat kari shake chhe.":"Twin off chhe. Kai shikhavo, pachhi turn on karo.");tx($("twon"),t.on?"Turn off":"Turn on");const l=$("tnl");l.textContent="";if(!t.notes.length)l.textContent="Haju kai shikhavyu nathi.";t.notes.forEach((n,i)=>{const r=mk("div","p");r.appendChild(mk("span",null,n));const d=mk("button","btn g","✕");d.onclick=()=>send({t:"twin_del",i});r.appendChild(d);l.appendChild(r)});langTabs($("tlg"))}
+$("twon").onclick=()=>send({t:"twin_set",on:!myTwin.on});
+$("tna").onclick=()=>{const v=$("tni").value.trim();if(v){send({t:"twin_note",text:v});$("tni").value=""}};
+$("bT").onclick=()=>{renderTwin();open("twin")};
+function listen(cb,btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Aa browser ma voice nathi, type karo");return}const r=new SR();r.lang=LCODE[lang];r.interimResults=false;const old=btn.textContent;btn.textContent="🎙️ Listening…";r.onresult=e=>cb(e.results[0][0].transcript);r.onend=()=>{btn.textContent=old};r.onerror=()=>toast("Mic allow karo");try{r.start()}catch(e){btn.textContent=old}}
+function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang=LCODE[lang];speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+$("tmic").onclick=()=>listen(t=>send({t:"twin_note",text:t}),$("tmic"));
+let twTo=null,twHist=[];
+function openTwin(id){twTo=id;twHist=[];$("twm").textContent="";const n=(users[id]||{}).name||"";tx($("twn"),"🤖 "+n+" no twin");langTabs($("tcl"));twMsg("assistant","Kem cho! Hu "+n+" no AI twin chhu. Mane kai pan puchho.",true);open("twc")}
+function twMsg(role,text,silent){const d=mk("div","m"+(role==="user"?" me":""));d.appendChild(mk("span",null,text));$("twm").appendChild(d);$("twm").scrollTop=1e9;twHist.push({role,content:text});if(role==="assistant"&&!silent)speak(text)}
+function twSend(v){v=(v||$("twi").value).trim();if(!v||!twTo)return;$("twi").value="";const hist=twHist.slice(-6);twMsg("user",v);send({t:"twin_ask",to:twTo,text:v,lang,hist})}
+$("tws").onclick=()=>twSend();$("twi").onkeydown=e=>{if(e.key==="Enter")twSend()};$("twmic").onclick=()=>listen(t=>twSend(t),$("twmic"));
+async function auth(mode){try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode,username:$("au").value,password:$("ap").value,tok})});const j=await r.json().catch(()=>({}));if(j.ok){LS.set("pp_user",j.username);toast(mode==="login"?"Login thayu ✅":"Account bani gayu ✅");if(mode==="login")setTimeout(()=>location.reload(),700);else tx($("aust"),"Account: "+j.username)}else toast(j.err||"Error")}catch(e){toast("Network error")}}
+$("areg").onclick=()=>auth("register");$("alog").onclick=()=>auth("login");tx($("aust"),LS.get("pp_user")?"Account: "+LS.get("pp_user"):"Account nathi. Register karo to bija phone ma login thay.");
+// ---- loop ----
+let last=performance.now();
+function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;
+ if(me.g){let fx=jx,fy=jy;if(keys.w||keys.arrowup)fy=-1;if(keys.s||keys.arrowdown)fy=1;if(keys.a||keys.arrowleft)fx=-1;if(keys.d||keys.arrowright)fx=1;const m=Math.hypot(fx,fy);
+  if(m>.1){const sp=(bike?18:9)*Math.min(m,1),dx=fx*Math.cos(yaw)+fy*Math.sin(yaw),dz=-fx*Math.sin(yaw)+fy*Math.cos(yaw),l=Math.hypot(dx,dz)||1;me.x=Math.max(-190,Math.min(190,me.x+dx/l*sp*dt));me.z=Math.max(-190,Math.min(190,me.z+dz/l*sp*dt));me.r=Math.atan2(dx,dz)}
+  if(bounce>0){bounce-=dt*2;me.g.position.y=Math.abs(Math.sin(bounce*Math.PI*3))*.8}else me.g.position.y=0;
+  me.g.position.x=me.x;me.g.position.z=me.z;me.g.rotation.y=me.r;cam.position.set(me.x+Math.sin(yaw)*9,6.5,me.z+Math.cos(yaw)*9);cam.lookAt(me.x,2.2,me.z)}
+ for(const p of players.values()){const g=p.g;g.position.x+=(p.tx-g.position.x)*.2;g.position.z+=(p.tz-g.position.z)*.2;let d=p.tr-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*.2}
+ extra(dt,now);kites.forEach(k=>{k.position.y+=Math.sin(now/700+k.userData.o)*.02;k.rotation.y+=.02});R.render(S,cam)}
+$("go").onclick=()=>{myName=($("nm").value.trim()||"Guest"+Math.floor(Math.random()*90+10)).slice(0,16);LS.set("pp_name",myName);LS.set("pp_color",myColor);
+ me.g=avatar(myName,myColor,true);S.add(me.g);$("start").style.display="none";toast("Palanpur ma swagat chhe, "+myName+"! 👋");connect()};
+requestAnimationFrame(frame);
+})();
+</script></body></html>
